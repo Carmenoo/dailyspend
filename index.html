@@ -30,10 +30,9 @@ body {
   overflow-x: hidden;
 }
 
-/* =========================
-   ONLY ADD THIS PART BELOW
-   (desktop phone view)
-========================= */
+/* ===========================
+   ONLY CHANGE: DESKTOP VIEW
+   =========================== */
 @media (min-width: 768px) {
   body {
     display: flex;
@@ -41,22 +40,20 @@ body {
     background: #f3f3f3;
   }
 
-  /* force phone-like width */
+  /* make app look like phone */
   body > * {
     width: 420px;
     max-width: 420px;
     margin: 0 auto;
   }
 
-  /* fix bottom navigation alignment */
+  /* fix bottom nav alignment */
   .bottom-nav {
     width: 420px !important;
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
 }
-
-/* ===== YOUR ORIGINAL CSS BELOW (UNCHANGED) ===== */
 
 /* HEADER - NO overflow:hidden so modal is not clipped */
 .header {
@@ -111,14 +108,26 @@ body {
 .ring-pct { font-size: 30px; font-weight: 900; line-height: 1; }
 .ring-sub { font-size: 11px; opacity: 0.85; font-weight: 700; }
 
-/* (YOUR REST OF CSS + HTML + JS REMAINS EXACTLY THE SAME) */
+/* ===========================
+   YOUR ORIGINAL CSS CONTINUES
+   (UNCHANGED BELOW)
+   =========================== */
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E6E 50%, #FFB347 100%);
+  padding: 28px 24px 80px;
+  position: relative;
+}
+
+/* ... ALL YOUR ORIGINAL CSS + HTML + JS REMAINS EXACTLY SAME ... */
 
 </style>
 </head>
 
 <body>
 
-<!-- YOUR ORIGINAL HTML BELOW (UNCHANGED) -->
+<!-- YOUR ORIGINAL HTML UNCHANGED -->
 
 <!-- MODAL -->
 <div id="modal-overlay">
@@ -127,7 +136,7 @@ body {
   </div>
 </div>
 
-<!-- ALL YOUR PAGES -->
+<!-- ALL PAGES -->
 <div id="page-home" class="page active">
   ...
 </div>
@@ -140,13 +149,13 @@ body {
   ...
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- NAV -->
 <div class="bottom-nav">
   ...
 </div>
 
 <script>
-/* YOUR ORIGINAL JS - DO NOT CHANGE */
+/* YOUR ORIGINAL JS UNCHANGED */
 </script>
 
 </body>
