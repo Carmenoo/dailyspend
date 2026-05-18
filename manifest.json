@@ -1,0 +1,27 @@
+{
+  "name": "DailySpend 🌸",
+  "short_name": "DailySpend",
+  "description": "Your warm & colorful daily expenses tracker",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFF9F0",
+  "theme_color": "#FF6B6B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f338.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f338.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f338.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
