@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#FF6B6B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="DailySpend">
+<title>DailySpend 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Pacifico&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --coral: #FF6B6B; --peach: #FF8E6E; --amber: #FFB347;
+  --mint: #06D6A0; --cream: #FFF9F0; --warm-white: #FFFAF5;
+  --text-dark: #3D2B1F; --text-mid: #7A5C4E; --text-light: #B8967E;
+}
+
+/* ── DESKTOP PHONE FRAME ── */
+html, body {
+  height: 100%;
+  font-family: 'Nunito', sans-serif;
+  background: #e8ddd5;
+  color: var(--text-dark);
+}
+
+/* Desktop: center a phone-sized container */
+@media (min-width: 540px) {
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #e8ddd5 0%, #d4c4b8 100%);
+    padding: 24px;
+  }
+  #app-shell {
+    width: 390px;
+    height: 844px;
+    max-height: calc(100vh - 48px);
+    border-radius: 44px;
+    box-shadow:
+      0 0 0 10px #1a1a1a,
+      0 0 0 12px #333,
+      0 32px 80px rgba(0,0,0,0.45),
+      0 8px 20px rgba(0,0,0,0.25);
+    overflow: hidden;
+    position: relative;
+    background: var(--cream);
+    /* simulate notch */
+  }
+  #app-shell::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 120px; height: 30px;
+    background: #1a1a1a;
+    border-radius: 0 0 20px 20px;
+    z-index: 9999;
+  }
+}
+
+/* Mobile: true full screen */
+@media (max-width: 539px) {
+  #app-shell {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh; /* handles mobile browser chrome */
+    background: var(--cream);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+  }
+  /* On mobile, nav is fixed to viewport bottom */
+  .bottom-nav {
+    position: fixed !important;
+    bottom: 0; left: 0; right: 0;
+    height: 72px;
+  }
+  .page-content {
+    bottom: 72px !important;
+  }
+}
+
+/* Inner scroll container */
+.app-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.app-inner::-webkit-scrollbar { display: none; }
+
+/* Scrollable content area — leaves room for nav */
+.page-content {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  bottom: 72px; /* nav height */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 16px;
+}
+.page-content::-webkit-scrollbar { display: none; }
+
+/* HEADER */
+.header {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E6E 50%, #FFB347 100%);
+  padding: 44px 24px 80px;
+  position: relative;
+}
+@media (max-width: 539px) {
+  .header { padding-top: 52px; }
+}
+.header-circle1 {
+  position: absolute; width: 200px; height: 200px;
+  border-radius: 50%; background: rgba(255,255,255,0.1);
+  top: -60px; right: -40px; pointer-events: none;
+}
+.header-circle2 {
+  position: absolute; width: 120px; height: 120px;
+  border-radius: 50%; background: rgba(255,255,255,0.08);
+  bottom: 20px; left: -20px; pointer-events: none;
+}
+.header-top {
+  display: flex; justify-content: space-between;
+  align-items: center; position: relative; z-index: 1;
+}
+.app-title { font-family: 'Pacifico', cursive; font-size: 26px; color: white; }
+.month-label { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 600; margin-top: 4px; }
+
+.settings-btn {
+  background: rgba(255,255,255,0.3);
+  border: 2px solid rgba(255,255,255,0.7);
+  border-radius: 14px; padding: 9px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 800;
+  color: white; cursor: pointer; position: relative; z-index: 1;
+}
+.settings-btn:hover { background: rgba(255,255,255,0.45); }
+
+/* RING */
+.ring-wrap {
+  background: linear-gradient(135deg, #FF6B6B, #FF8E6E, #FFB347);
+  padding: 0 0 28px;
+  display: flex; justify-content: center;
+  margin-top: -1px;
+}
+.ring-container { position: relative; width: 140px; height: 140px; }
+.ring-container svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: rgba(255,255,255,0.3); stroke-width: 10; }
+.ring-fill { fill: none; stroke: white; stroke-width: 10; stroke-linecap: round; transition: stroke-dashoffset 0.8s ease; }
+.ring-center {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center; color: white;
+}
+.ring-pct { font-size: 30px; font-weight: 900; line-height: 1; }
+.ring-sub { font-size: 11px; opacity: 0.85; font-weight: 700; }
+
+/* BUDGET CARD */
+.budget-card {
+  background: white; border-radius: 24px;
+  margin: -48px 16px 0; padding: 20px;
+  box-shadow: 0 4px 20px rgba(255,107,107,0.15);
+  position: relative; z-index: 2;
+}
+.budget-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.budget-label, .spent-label { font-size: 13px; color: var(--text-light); font-weight: 600; }
+.budget-amount { font-size: 22px; font-weight: 900; }
+.spent-amount { font-size: 18px; font-weight: 800; text-align: right; }
+.prog-bar { height: 10px; background: #f0e8e0; border-radius: 99px; }
+.prog-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--mint), var(--amber)); transition: width 0.8s; }
+.prog-fill.warn { background: linear-gradient(90deg, var(--amber), var(--coral)); }
+.prog-fill.over { background: linear-gradient(90deg, var(--coral), #c0392b); }
+.remain-text { font-size: 12px; color: var(--text-light); margin-top: 6px; font-weight: 600; }
+
+/* ALERT */
+.alert-box {
+  margin: 12px 16px 0; border-radius: 14px; padding: 14px 16px;
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 14px; font-weight: 700; line-height: 1.4;
+}
+.alert-warn { background: linear-gradient(135deg, #FFD166, #FFB347); color: #7A4500; box-shadow: 0 4px 12px rgba(255,179,71,0.35); }
+.alert-over { background: linear-gradient(135deg, #FF8E6E, #FF6B6B); color: #6B0000; box-shadow: 0 4px 12px rgba(255,107,107,0.4); }
+
+/* STATS */
+.stats-row { display: flex; gap: 10px; margin: 14px 16px 0; }
+.stat-card { flex: 1; border-radius: 16px; padding: 14px 12px; text-align: center; }
+.stat-card .s-label { font-size: 11px; font-weight: 700; opacity: 0.75; margin-bottom: 4px; }
+.stat-card .s-value { font-size: 17px; font-weight: 900; }
+.s-coral { background: linear-gradient(135deg, #FFEDE9, #FFD4CC); color: #8B2500; }
+.s-mint  { background: linear-gradient(135deg, #E3FAF3, #C0F5E2); color: #005A3E; }
+.s-amber { background: linear-gradient(135deg, #FFF3D9, #FFE5A0); color: #6B3800; }
+
+/* SECTION */
+.section-title {
+  font-size: 16px; font-weight: 800; color: var(--text-dark);
+  margin: 20px 16px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.section-title span { font-size: 12px; font-weight: 600; color: var(--text-light); cursor: pointer; }
+
+/* ADD FORM */
+.add-card {
+  background: white; border-radius: 20px;
+  margin: 0 16px 14px; padding: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.add-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.inp {
+  flex: 1; border: 2px solid #f0e8e0; border-radius: 12px;
+  padding: 11px 14px; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 600; color: var(--text-dark);
+  background: var(--warm-white); outline: none;
+}
+.inp:focus { border-color: var(--coral); }
+.inp-amount { width: 110px; flex: none; }
+.cat-select {
+  flex: 1; border: 2px solid #f0e8e0; border-radius: 12px;
+  padding: 11px 14px; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 600; color: var(--text-dark);
+  background: var(--warm-white); outline: none;
+}
+.add-btn {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--coral), var(--peach));
+  border: none; border-radius: 14px;
+  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800;
+  color: white; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(255,107,107,0.4);
+}
+.add-btn:active { opacity: 0.85; }
+
+/* EXPENSE ITEMS */
+.expense-list { margin: 0 16px; }
+.expense-item {
+  background: white; border-radius: 16px; padding: 14px 16px;
+  margin-bottom: 10px; display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.cat-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.item-info { flex: 1; }
+.item-name { font-size: 14px; font-weight: 700; }
+.item-meta { font-size: 12px; color: var(--text-light); font-weight: 600; margin-top: 2px; }
+.item-amount { font-size: 16px; font-weight: 900; color: var(--coral); }
+.del-btn { background: none; border: none; font-size: 18px; cursor: pointer; opacity: 0.3; padding: 4px; }
+.del-btn:hover { opacity: 0.8; }
+.empty-state { text-align: center; padding: 30px; color: var(--text-light); font-size: 14px; font-weight: 600; }
+.empty-icon { font-size: 48px; margin-bottom: 10px; }
+
+/* BOTTOM NAV — always fixed at bottom of app shell */
+.bottom-nav {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 72px;
+  background: white;
+  border-top: 1px solid #f0e8e0;
+  display: flex;
+  padding: 10px 0 16px;
+  z-index: 100;
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: none; border: none; cursor: pointer;
+  font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 700;
+  color: var(--text-light); padding: 6px 0;
+}
+.nav-btn.active { color: var(--coral); }
+.nav-icon { font-size: 22px; }
+
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* MODAL — fixed inside app-shell on desktop, fixed on mobile */
+#modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(61,43,31,0.55);
+  z-index: 99999;
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+}
+@media (min-width: 540px) {
+  #modal-overlay {
+    position: absolute;
+    border-radius: 44px;
+    overflow: hidden;
+  }
+}
+#modal-box {
+  background: white;
+  border-radius: 28px 28px 0 0;
+  padding: 28px 24px 48px;
+  width: 100%;
+}
+.modal-title {
+  font-size: 20px; font-weight: 900; color: var(--text-dark);
+  margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+}
+.modal-close-btn {
+  background: #f0e8e0; border: none; border-radius: 50%;
+  width: 34px; height: 34px; font-size: 16px; cursor: pointer;
+  color: var(--text-mid); font-weight: 700;
+}
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 13px; font-weight: 700; color: var(--text-mid); margin-bottom: 6px; display: block; }
+.form-inp {
+  width: 100%; border: 2px solid #f0e8e0; border-radius: 12px;
+  padding: 13px 14px; font-family: 'Nunito', sans-serif;
+  font-size: 16px; font-weight: 700; color: var(--text-dark);
+  background: var(--warm-white); outline: none;
+}
+.form-inp:focus { border-color: var(--coral); }
+.save-btn {
+  width: 100%; padding: 15px;
+  background: linear-gradient(135deg, var(--coral), var(--peach));
+  border: none; border-radius: 14px;
+  font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 900;
+  color: white; cursor: pointer; margin-top: 8px;
+  box-shadow: 0 4px 14px rgba(255,107,107,0.4);
+}
+
+/* CHARTS */
+.chart-bar-wrap { margin: 0 16px; }
+.chart-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.chart-emoji { font-size: 18px; width: 28px; }
+.chart-name { font-size: 13px; font-weight: 700; width: 90px; flex-shrink: 0; }
+.chart-bg { flex: 1; background: #f0e8e0; border-radius: 99px; height: 10px; }
+.chart-fill { height: 100%; border-radius: 99px; transition: width 0.6s; }
+.chart-amt { font-size: 13px; font-weight: 800; width: 65px; text-align: right; }
+
+/* HISTORY */
+.month-sel { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 14px 16px; }
+.m-arrow { background: none; border: 2px solid #f0e8e0; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; font-size: 16px; color: var(--text-mid); }
+.m-label { font-size: 16px; font-weight: 800; }
+
+/* TOAST */
+.toast {
+  position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, #FF8E6E, #FF6B6B);
+  color: white; padding: 12px 20px; border-radius: 16px;
+  font-size: 14px; font-weight: 700;
+  box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+  z-index: 999999; white-space: nowrap;
+}
+@media (max-width: 539px) {
+  .toast { position: fixed; top: 20px; }
+}
+
+/* CATEGORY COLORS */
+.bg-food      { background: linear-gradient(135deg,#FFE5CC,#FFD0A0); }
+.bg-transport { background: linear-gradient(135deg,#CCE8FF,#A0D0FF); }
+.bg-shop      { background: linear-gradient(135deg,#FFD6E8,#FFB3D0); }
+.bg-health    { background: linear-gradient(135deg,#D6F5E8,#A0EACC); }
+.bg-entertain { background: linear-gradient(135deg,#EAD6FF,#D0A8FF); }
+.bg-bills     { background: linear-gradient(135deg,#FFE8CC,#FFCF99); }
+.bg-others    { background: linear-gradient(135deg,#E0E0E0,#C8C8C8); }
+.bar-food      { background: linear-gradient(90deg,#FFB347,#FF8E6E); }
+.bar-transport { background: linear-gradient(90deg,#118AB2,#06D6A0); }
+.bar-shop      { background: linear-gradient(90deg,#FF6B9D,#9B72CF); }
+.bar-health    { background: linear-gradient(90deg,#06D6A0,#118AB2); }
+.bar-entertain { background: linear-gradient(90deg,#9B72CF,#FF6B9D); }
+.bar-bills     { background: linear-gradient(90deg,#FFD166,#FFB347); }
+.bar-others    { background: linear-gradient(90deg,#aaa,#888); }
+</style>
+</head>
+<body>
+
+<!-- APP SHELL — phone frame on desktop, full screen on mobile -->
+<div id="app-shell">
+
+  <!-- MODAL inside shell so it clips within the phone frame on desktop -->
+  <div id="modal-overlay">
+    <div id="modal-box">
+      <div class="modal-title">
+        Set Monthly Budget
+        <button class="modal-close-btn" id="modal-close-btn">✕</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Currency Symbol</label>
+        <input class="form-inp" id="modal-currency" placeholder="RM" maxlength="5"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Monthly Budget Amount</label>
+        <input class="form-inp" id="modal-budget" type="number" placeholder="e.g. 2000" min="0"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Warn me when I reach (%)</label>
+        <input class="form-inp" id="modal-threshold" type="number" placeholder="80" min="1" max="99"/>
+      </div>
+      <button class="save-btn" id="modal-save-btn">💾 Save Budget</button>
+      <button onclick="requestNotifPermission()" style="width:100%;padding:12px;margin-top:10px;background:none;border:2px solid #f0e8e0;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--text-mid);cursor:pointer;">🔔 Enable Budget Notifications</button>
+    </div>
+  </div>
+
+  <!-- Scrollable inner area -->
+  <div class="app-inner" id="app-inner">
+
+    <!-- All pages scroll inside page-content -->
+    <div class="page-content" id="page-content">
+
+    <!-- HOME PAGE -->
+    <div id="page-home" class="page active">
+      <div class="header">
+        <div class="header-circle1"></div>
+        <div class="header-circle2"></div>
+        <div class="header-top">
+          <div>
+            <div class="app-title">DailySpend 🌸</div>
+            <div class="month-label" id="header-month"></div>
+          </div>
+          <button class="settings-btn" id="open-modal-btn">+ Set Budget</button>
+        </div>
+      </div>
+
+      <div class="ring-wrap">
+        <div class="ring-container">
+          <svg viewBox="0 0 140 140" width="140" height="140">
+            <circle class="ring-bg" cx="70" cy="70" r="60"/>
+            <circle class="ring-fill" id="ring-fill" cx="70" cy="70" r="60"
+              stroke-dasharray="377" stroke-dashoffset="377"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-pct" id="ring-pct">0%</div>
+            <div class="ring-sub">used</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="budget-card">
+        <div class="budget-row">
+          <div>
+            <div class="budget-label">Monthly Budget</div>
+            <div class="budget-amount" id="budget-display">RM 0.00</div>
+          </div>
+          <div>
+            <div class="spent-label">Spent</div>
+            <div class="spent-amount" id="spent-display">RM 0.00</div>
+          </div>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+        <div class="remain-text" id="remain-text">Tap "+ Set Budget" to get started!</div>
+      </div>
+
+      <div id="alert-box" style="display:none;"></div>
+
+      <div class="stats-row">
+        <div class="stat-card s-coral"><div class="s-label">TODAY</div><div class="s-value" id="stat-today">RM 0</div></div>
+        <div class="stat-card s-mint"><div class="s-label">LEFT</div><div class="s-value" id="stat-left">RM 0</div></div>
+        <div class="stat-card s-amber"><div class="s-label">ITEMS</div><div class="s-value" id="stat-count">0</div></div>
+      </div>
+
+      <div class="section-title">Add Expense</div>
+      <div class="add-card">
+        <div class="add-row">
+          <input class="inp" id="inp-name" placeholder="What did you spend on?"/>
+          <input class="inp inp-amount" id="inp-amount" type="number" placeholder="Amount" min="0" step="0.01"/>
+        </div>
+        <div class="add-row">
+          <select class="cat-select" id="inp-cat">
+            <option value="food">🍜 Food & Drinks</option>
+            <option value="transport">🚗 Transport</option>
+            <option value="shop">🛍️ Shopping</option>
+            <option value="health">💊 Health</option>
+            <option value="entertain">🎮 Entertainment</option>
+            <option value="bills">💡 Bills & Utilities</option>
+            <option value="others">📦 Others</option>
+          </select>
+        </div>
+        <button class="add-btn" id="add-btn">+ Add Expense</button>
+      </div>
+
+      <div class="section-title">
+        Today's Expenses
+        <span id="see-all-btn">See all →</span>
+      </div>
+      <div class="expense-list" id="today-list"></div>
+    </div>
+
+    <!-- CHARTS PAGE -->
+    <div id="page-charts" class="page">
+      <div class="header" style="padding-bottom:24px;">
+        <div class="header-circle1"></div>
+        <div class="app-title" style="font-size:22px;">📊 Breakdown</div>
+        <div class="month-label" id="chart-month-lbl"></div>
+      </div>
+      <div class="section-title">By Category</div>
+      <div class="chart-bar-wrap" id="chart-cats"></div>
+      <div class="section-title">Daily Spending</div>
+      <div style="margin:0 16px 20px;"><canvas id="daily-canvas" height="180"></canvas></div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div id="page-history" class="page">
+      <div class="header" style="padding-bottom:24px;">
+        <div class="header-circle1"></div>
+        <div class="app-title" style="font-size:22px;">📋 History</div>
+      </div>
+      <div class="month-sel">
+        <button class="m-arrow" id="prev-month">←</button>
+        <div class="m-label" id="hist-month-lbl"></div>
+        <button class="m-arrow" id="next-month">→</button>
+      </div>
+      <div class="expense-list" id="hist-list"></div>
+    </div>
+
+    </div><!-- /page-content -->
+
+    <!-- BOTTOM NAV — absolute at bottom of app-inner -->
+    <div class="bottom-nav">
+      <button class="nav-btn active" data-page="home"><span class="nav-icon">🏠</span>Home</button>
+      <button class="nav-btn" data-page="charts"><span class="nav-icon">📊</span>Charts</button>
+      <button class="nav-btn" data-page="history"><span class="nav-icon">📋</span>History</button>
+    </div>
+
+  </div><!-- /app-inner -->
+</div><!-- /app-shell -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const CAT = {
+  food:      { label:'Food & Drinks', emoji:'🍜', bg:'bg-food',      bar:'bar-food'      },
+  transport: { label:'Transport',     emoji:'🚗', bg:'bg-transport', bar:'bar-transport' },
+  shop:      { label:'Shopping',      emoji:'🛍️', bg:'bg-shop',      bar:'bar-shop'      },
+  health:    { label:'Health',        emoji:'💊', bg:'bg-health',    bar:'bar-health'    },
+  entertain: { label:'Entertainment', emoji:'🎮', bg:'bg-entertain', bar:'bar-entertain' },
+  bills:     { label:'Bills',         emoji:'💡', bg:'bg-bills',     bar:'bar-bills'     },
+  others:    { label:'Others',        emoji:'📦', bg:'bg-others',    bar:'bg-others'     },
+};
+
+var ST = { expenses:[], budget:0, currency:'RM', threshold:80 };
+try {
+  var saved = JSON.parse(localStorage.getItem('ds3') || '{}');
+  if (saved.expenses)  ST.expenses  = saved.expenses;
+  if (saved.budget)    ST.budget    = saved.budget;
+  if (saved.currency)  ST.currency  = saved.currency;
+  if (saved.threshold) ST.threshold = saved.threshold;
+} catch(e) {}
+
+var histM = new Date().getMonth();
+var histY = new Date().getFullYear();
+var dayChart = null;
+var prevPct = 0;
+
+function save() {
+  try { localStorage.setItem('ds3', JSON.stringify(ST)); } catch(e) {}
+}
+function fmt(n) { return ST.currency + ' ' + parseFloat(n||0).toFixed(2); }
+function fmtS(n) { return ST.currency + ' ' + (n>=1000?(n/1000).toFixed(1)+'k':Math.round(n)); }
+function monthName(m,y) { return new Date(y,m,1).toLocaleString('default',{month:'long',year:'numeric'}); }
+function getExp(y,m) {
+  return ST.expenses.filter(function(e){
+    var d = new Date(e.date);
+    return d.getFullYear()===y && d.getMonth()===m;
+  });
+}
+function getToday() {
+  var t = new Date().toDateString();
+  return ST.expenses.filter(function(e){ return new Date(e.date).toDateString()===t; });
+}
+function toast(msg) {
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  // append inside shell so it's contained
+  document.getElementById('app-shell').appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2800);
+}
+
+// MODAL
+var overlay = document.getElementById('modal-overlay');
+document.getElementById('open-modal-btn').onclick = function() {
+  document.getElementById('modal-currency').value  = ST.currency  || 'RM';
+  document.getElementById('modal-budget').value    = ST.budget    || '';
+  document.getElementById('modal-threshold').value = ST.threshold || 80;
+  overlay.style.display = 'flex';
+};
+document.getElementById('modal-close-btn').onclick = function() { overlay.style.display = 'none'; };
+overlay.onclick = function(e) { if (e.target === overlay) overlay.style.display = 'none'; };
+document.getElementById('modal-save-btn').onclick = function() {
+  var b = parseFloat(document.getElementById('modal-budget').value);
+  var c = document.getElementById('modal-currency').value.trim() || 'RM';
+  var t = parseInt(document.getElementById('modal-threshold').value) || 80;
+  if (isNaN(b) || b <= 0) { toast('Please enter a valid budget!'); return; }
+  ST.budget = b; ST.currency = c; ST.threshold = Math.min(Math.max(t,1),99);
+  save(); overlay.style.display = 'none'; render(); toast('Budget saved! 🎉');
+  // Ask for notification permission when budget is set
+  requestNotifPermission();
+};
+
+// ── NOTIFICATIONS ──────────────────────────────────
+function requestNotifPermission() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    Notification.requestPermission().then(function(result) {
+      if (result === 'granted') {
+        toast('Notifications on! 🔔 I'll warn you at ' + ST.threshold + '%');
+      } else {
+        toast('Notifications blocked. Enable in phone settings to get alerts.');
+      }
+    });
+  } else if (Notification.permission === 'granted') {
+    toast('Notifications already on! 🔔');
+  } else {
+    toast('Notifications blocked. Go to Settings → Safari/Chrome → allow notifications.');
+  }
+}
+
+function sendNotif(title, body) {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') {
+    try {
+      // Try service worker notification first (works when app is in background)
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready.then(function(reg) {
+          reg.showNotification(title, {
+            body: body,
+            icon: './icon-192.png',
+            badge: './icon-192.png',
+            tag: 'budget-alert',
+            renotify: true,
+            vibrate: [200, 100, 200]
+          });
+        });
+      } else {
+        // Fallback: direct notification
+        new Notification(title, { body: body });
+      }
+    } catch(e) {
+      new Notification(title, { body: body });
+    }
+  }
+}
+
+function render() {
+  var now  = new Date();
+  var mExp = getExp(now.getFullYear(), now.getMonth());
+  var tExp = getToday();
+  var total = 0; mExp.forEach(function(e){ total += e.amount; });
+  var todayTotal = 0; tExp.forEach(function(e){ todayTotal += e.amount; });
+  var pct  = ST.budget > 0 ? Math.min((total/ST.budget)*100, 100) : 0;
+  var left = Math.max(ST.budget - total, 0);
+
+  document.getElementById('header-month').textContent   = monthName(now.getMonth(), now.getFullYear());
+  document.getElementById('budget-display').textContent = fmt(ST.budget);
+  document.getElementById('spent-display').textContent  = fmt(total);
+  document.getElementById('spent-display').style.color  = pct>=100?'#c0392b':pct>=ST.threshold?'#e67e22':'#06D6A0';
+  document.getElementById('remain-text').textContent    = ST.budget>0 ? fmt(left)+' remaining' : 'Tap "+ Set Budget" to get started!';
+  document.getElementById('stat-today').textContent     = fmtS(todayTotal);
+  document.getElementById('stat-left').textContent      = fmtS(left);
+  document.getElementById('stat-count').textContent     = mExp.length;
+
+  var offset = 377 - (377 * pct / 100);
+  var ring = document.getElementById('ring-fill');
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = pct>=100?'#FF4444':pct>=ST.threshold?'#FFD166':'white';
+  document.getElementById('ring-pct').textContent = Math.round(pct)+'%';
+
+  var pf = document.getElementById('prog-fill');
+  pf.style.width = pct+'%';
+  pf.className = 'prog-fill'+(pct>=100?' over':pct>=ST.threshold?' warn':'');
+
+  var warnMsgs = [
+    '🕳️ Careful ya! Your wallet got hole leh!',
+    '😱 Eh eh eh... slow down a bit can?',
+    '🛑 Babe, the ATM is not your friend anymore.',
+    '💸 Your money going on holiday without you!',
+    '🐷 Piggy bank is crying right now...',
+    '🧃 Maybe just drink plain water today lah!',
+    '👀 Your future self is side-eyeing you hard.',
+    '🥲 Almost there... almost broke lah!',
+  ];
+  var overMsgs = [
+    '💀 Wallet has left the chat. GG.',
+    '🚒 Budget on fire! Call the finance bomba!',
+    '😭 Your bank account needs a hug right now.',
+    '🪦 RIP budget ' + now.getFullYear() + '. Gone too soon.',
+    '🫙 The jar is empty bestie. Empty.',
+    '🤡 We are so cooked financially.',
+  ];
+  var ab = document.getElementById('alert-box');
+  if (ST.budget>0 && pct>=100) {
+    ab.style.display = 'flex';
+    ab.className = 'alert-box alert-over';
+    var overIdx = Math.floor((total / ST.budget * 10)) % overMsgs.length;
+    ab.innerHTML = overMsgs[overIdx] + '<br><small style="opacity:0.8;font-weight:600;">Overspent by '+fmt(total-ST.budget)+'</small>';
+  } else if (ST.budget>0 && pct>=ST.threshold) {
+    ab.style.display = 'flex';
+    ab.className = 'alert-box alert-warn';
+    var warnIdx = Math.floor(pct / 5) % warnMsgs.length;
+    ab.innerHTML = warnMsgs[warnIdx] + '<br><small style="opacity:0.8;font-weight:600;">'+Math.round(pct)+'% of budget used</small>';
+  } else {
+    ab.style.display = 'none';
+  }
+
+  // Trigger notification when crossing threshold or 100%
+  if (ST.budget > 0 && prevPct < ST.threshold && pct >= ST.threshold) {
+    sendNotif(
+      '🕳️ Eh, wallet got hole!',
+      'You've spent ' + Math.round(pct) + '% of your budget. Slow down a bit can? 😅'
+    );
+  }
+  if (ST.budget > 0 && prevPct < 100 && pct >= 100) {
+    sendNotif(
+      '💀 Budget habis lah!',
+      'You've used 100% of your budget. Wallet has left the chat. 🫙'
+    );
+  }
+  prevPct = pct;
+
+  var todayCopy = tExp.slice().reverse();
+  renderList('today-list', todayCopy, true);
+}
+
+function renderList(id, items, isToday) {
+  var el = document.getElementById(id);
+  if (!items.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-icon">'+(isToday?'🌸':'📭')+'</div>'+(isToday?'No expenses today!':'No expenses this month.')+'</div>';
+    return;
+  }
+  el.innerHTML = items.map(function(e){
+    var meta = CAT[e.cat] || CAT.others;
+    var d = new Date(e.date);
+    var dateStr = d.toLocaleDateString('en-MY',{day:'numeric',month:'short'}) + ' ' + d.toLocaleTimeString('en-MY',{hour:'2-digit',minute:'2-digit'});
+    return '<div class="expense-item">'+
+      '<div class="cat-icon '+meta.bg+'">'+meta.emoji+'</div>'+
+      '<div class="item-info">'+
+        '<div class="item-name">'+e.name+'</div>'+
+        '<div class="item-meta">'+meta.label+' · '+dateStr+'</div>'+
+      '</div>'+
+      '<div class="item-amount">'+fmt(e.amount)+'</div>'+
+      '<button class="del-btn" onclick="delExp(\''+e.id+'\')">🗑</button>'+
+    '</div>';
+  }).join('');
+}
+
+document.getElementById('add-btn').onclick = function() {
+  var name   = document.getElementById('inp-name').value.trim();
+  var amount = parseFloat(document.getElementById('inp-amount').value);
+  var cat    = document.getElementById('inp-cat').value;
+  if (!name) name = 'Expense'; // default name if empty
+  if (!amount||amount<=0){ toast('Enter a valid amount!'); return; }
+  ST.expenses.push({ id: Date.now().toString(), name:name, amount:amount, cat:cat, date: new Date().toISOString() });
+  save();
+  document.getElementById('inp-name').value   = '';
+  document.getElementById('inp-amount').value = '';
+  render();
+  toast('Added! ✨');
+};
+
+function delExp(id) {
+  if (!confirm('Delete this expense?')) return;
+  ST.expenses = ST.expenses.filter(function(e){ return e.id!==id; });
+  save(); render(); renderHistory();
+}
+
+document.querySelectorAll('.nav-btn').forEach(function(btn){
+  btn.onclick = function(){
+    var page = this.dataset.page;
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+    document.getElementById('page-'+page).classList.add('active');
+    btn.classList.add('active');
+    document.getElementById('page-content').scrollTop = 0;
+    if (page==='charts')  renderCharts();
+    if (page==='history') renderHistory();
+  };
+});
+
+document.getElementById('see-all-btn').onclick = function(){
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('page-history').classList.add('active');
+  document.querySelector('[data-page="history"]').classList.add('active');
+  renderHistory();
+};
+
+function renderCharts() {
+  var now = new Date();
+  var exp = getExp(now.getFullYear(), now.getMonth());
+  document.getElementById('chart-month-lbl').textContent = monthName(now.getMonth(), now.getFullYear());
+  var cats = {};
+  exp.forEach(function(e){ cats[e.cat] = (cats[e.cat]||0) + e.amount; });
+  var sorted = Object.entries(cats).sort(function(a,b){ return b[1]-a[1]; });
+  var maxA = sorted.length ? sorted[0][1] : 1;
+  document.getElementById('chart-cats').innerHTML = sorted.length
+    ? sorted.map(function(item){
+        var cat=item[0], amt=item[1];
+        var meta = CAT[cat]||CAT.others;
+        return '<div class="chart-row">'+
+          '<div class="chart-emoji">'+meta.emoji+'</div>'+
+          '<div class="chart-name">'+meta.label+'</div>'+
+          '<div class="chart-bg"><div class="chart-fill '+meta.bar+'" style="width:'+(amt/maxA*100).toFixed(1)+'%"></div></div>'+
+          '<div class="chart-amt">'+fmtS(amt)+'</div>'+
+        '</div>';
+      }).join('')
+    : '<div class="empty-state"><div class="empty-icon">📊</div>No data yet.</div>';
+
+  var daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  var days = {};
+  for(var d=1;d<=daysInMonth;d++) days[d]=0;
+  exp.forEach(function(e){ var d=new Date(e.date).getDate(); days[d]=(days[d]||0)+e.amount; });
+  if (dayChart) { dayChart.destroy(); dayChart=null; }
+  var cur = ST.currency;
+  dayChart = new Chart(document.getElementById('daily-canvas').getContext('2d'),{
+    type:'bar',
+    data:{
+      labels: Object.keys(days),
+      datasets:[{
+        data: Object.values(days),
+        backgroundColor: Object.keys(days).map(function(d){ return parseInt(d)===now.getDate()?'#FF6B6B':'#FFD166'; }),
+        borderRadius:6, borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{family:'Nunito',size:10},color:'#B8967E'}},
+        y:{grid:{color:'#f0e8e0'},ticks:{font:{family:'Nunito',size:10},color:'#B8967E',callback:function(v){return cur+v;}}}
+      }
+    }
+  });
+}
+
+function renderHistory() {
+  document.getElementById('hist-month-lbl').textContent = monthName(histM, histY);
+  var exp = getExp(histY, histM).slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); });
+  renderList('hist-list', exp, false);
+}
+document.getElementById('prev-month').onclick = function(){ histM--; if(histM<0){histM=11;histY--;} renderHistory(); };
+document.getElementById('next-month').onclick = function(){ histM++; if(histM>11){histM=0;histY++;} renderHistory(); };
+
+render();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});
+</script>
+</body>
+</html>
