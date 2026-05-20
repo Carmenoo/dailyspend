@@ -248,11 +248,20 @@ body {
 
 /* ── EXPENSE ITEMS ── */
 .exp-list { margin: 0 14px; }
+
 .exp-item {
-  background: var(--surface); border-radius: 14px; padding: 12px 14px;
-  margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   box-shadow: 0 2px 8px var(--card-shadow);
+
+  animation: fadeUp .25s ease;
 }
+
 .cat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
 .item-info { flex: 1; min-width: 0; }
 .item-name { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -262,6 +271,17 @@ body {
 .del-btn:hover, .del-btn:active { opacity: 0.8; }
 .empty-state { text-align: center; padding: 28px; color: var(--text-light); font-size: 13px; font-weight: 600; }
 .empty-icon { font-size: 40px; margin-bottom: 8px; }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 /* ── CHARTS ── */
 .chart-bar-wrap { margin: 0 14px; }
